@@ -7,7 +7,6 @@ using RevivalMod.Fika;
 using RevivalMod.Patches;
 using RevivalMod.Helpers;
 using System.Reflection;
-using RevivalMod.Components;
 
 namespace RevivalMod
 {

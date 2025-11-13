@@ -36,6 +36,7 @@
       <Private>false</Private>
     </Reference>
     <Reference Include="ItemComponent.Types">
+      <HintPath>D:\ref4\ItemComponent.Types.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="PhysicsModule">

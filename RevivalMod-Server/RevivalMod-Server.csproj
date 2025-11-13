@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <RootNamespace>RevivalMod-Server</RootNamespace>
+        <AssemblyName>RevivalMod-Server</AssemblyName>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <OutputType>Library</OutputType>
+        <Version>0.0.1</Version>
+        <!-- The two lines below will set the output path for the binaries -->
+        <OutputPath>bin\$(Configuration)\$(ProjectName)\$(AssemblyName)\</OutputPath>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="SPTarkov.Common" Version="4.0.3" />
+        <PackageReference Include="SPTarkov.DI" Version="4.0.3" />
+        <PackageReference Include="SPTarkov.Server.Core" Version="4.0.3" />
+    </ItemGroup>
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="src\config.json" />
+    </ItemGroup>
+    
+    <PropertyGroup>
+        <SPTPath>F:\SPT_4.0\SPT</SPTPath>
+        <ModsDirectoryPath>$(SPTPath)\user\mods\$(MSBuildProjectName)</ModsDirectoryPath>
+    </PropertyGroup>
+
+    <Target Name="CopyToSPT" AfterTargets="AfterBuild" Condition="'$(SPTPath)' != ''">
+        <Message Importance="high" Text="Copying mod files to $(ModsDirectoryPath)" />
+
+        <!-- Copy DLL + PDB -->
+        <ItemGroup>
+            <FilesToCopy Include="$(OutputPath)$(TargetName)$(TargetExt)" />
+            <FilesToCopy Include="$(OutputPath)$(TargetName).pdb" />
+        </ItemGroup>
+        <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(ModsDirectoryPath)" ContinueOnError="false" />
+
+        <!-- Copy all files from config folder -->
+        <ItemGroup>
+            <ConfigFiles Include="config\*.json" />
+        </ItemGroup>
+        <Copy SourceFiles="@(ConfigFiles)"
+              DestinationFiles="@(ConfigFiles->'$(ModsDirectoryPath)\config\%(Filename)%(Extension)')" />
+
+        <Message Text="Files copied successfully." Importance="high" />
+    </Target>
+</Project>

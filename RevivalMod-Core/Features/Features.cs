@@ -199,7 +199,7 @@ namespace RevivalMod.Features
         {
             GamePlayerOwner owner = player.GetComponentInParent<GamePlayerOwner>();
             
-            if (!RevivalModSettings.SELF_REVIVAL_ENABLED.Value) 
+            if (!RevivalModSettings.SELF_REVIVAL_ENABLED) 
                 return;
             
             KeyCode revivalKey = RevivalModSettings.SELF_REVIVAL_KEY.Value;
@@ -232,7 +232,7 @@ namespace RevivalMod.Features
                 }
 
                 // Show revive timer
-                owner.ShowObjectivesPanel("Reviving {0:F1}", RevivalModSettings.REVIVAL_HOLD_DURATION.Value);
+                owner.ShowObjectivesPanel("Reviving {0:F1}", RevivalModSettings.REVIVAL_HOLD_DURATION);
             }
 
             // Update hold duration while key is held
@@ -242,7 +242,7 @@ namespace RevivalMod.Features
                 _selfRevivalKeyHoldDuration[revivalKey] += Time.deltaTime;
 
                 float holdDuration = _selfRevivalKeyHoldDuration[revivalKey];
-                float requiredDuration = RevivalModSettings.REVIVAL_HOLD_DURATION.Value;
+                float requiredDuration = RevivalModSettings.REVIVAL_HOLD_DURATION;
 
                 // Trigger revival when key is held long enough
                 if (holdDuration >= requiredDuration)
@@ -434,7 +434,7 @@ namespace RevivalMod.Features
         private static void InitializeCriticalState(Player player, string playerId)
         {
             // Set the critical state timer
-            _playerList[playerId].CriticalTimer = RevivalModSettings.CRITICAL_STATE_TIME.Value;
+            _playerList[playerId].CriticalTimer = RevivalModSettings.CRITICAL_STATE_TIME;
             _playerList[playerId].IsInvulnerable = true;
 
             // Apply effects and make player revivable
@@ -448,7 +448,7 @@ namespace RevivalMod.Features
 
                 // Create a countdown timer for critical state
                 criticalStateMainTimer = new CustomTimer();
-                criticalStateMainTimer.StartCountdown(RevivalModSettings.CRITICAL_STATE_TIME.Value, "Critical State Timer", TimerPosition.MiddleCenter);
+                criticalStateMainTimer.StartCountdown(RevivalModSettings.CRITICAL_STATE_TIME, "Critical State Timer", TimerPosition.MiddleCenter);
             }
 
             RMSession.AddToCriticalPlayers(playerId, player.Position);
@@ -456,8 +456,7 @@ namespace RevivalMod.Features
             // Send initial position packet for multiplayer sync
             FikaBridge.SendPlayerPositionPacket(playerId, new DateTime(), player.Position);
         }
-
-
+        
         /// <summary>
         /// Displays critical state notification with available options
         /// </summary>
@@ -468,13 +467,14 @@ namespace RevivalMod.Features
                 // Build notification message
                 string message = "CRITICAL CONDITION!\n";
 
-                if (RevivalModSettings.SELF_REVIVAL_ENABLED.Value && HasDefib(player.Inventory.GetPlayerItems(EPlayerItems.Equipment)))
+                if (RevivalModSettings.SELF_REVIVAL_ENABLED && 
+                    HasDefib(player.Inventory.GetPlayerItems(EPlayerItems.Equipment)))
                 {
-                    message += $"Hold {RevivalModSettings.SELF_REVIVAL_KEY.Value} for {RevivalModSettings.REVIVAL_HOLD_DURATION.Value}s to use defibrillator\n";
+                    message += $"Hold {RevivalModSettings.SELF_REVIVAL_KEY.Value} for {RevivalModSettings.REVIVAL_HOLD_DURATION}s to use defibrillator\n";
                 }
 
                 message += $"Press {RevivalModSettings.GIVE_UP_KEY.Value} to give up\n";
-                message += $"Or wait for a teammate to revive you ({(int)RevivalModSettings.CRITICAL_STATE_TIME.Value} seconds)";
+                message += $"Or wait for a teammate to revive you ({(int)RevivalModSettings.CRITICAL_STATE_TIME} seconds)";
 
                 NotificationManagerClass.DisplayMessageNotification(
                     message,
@@ -561,13 +561,13 @@ namespace RevivalMod.Features
         {
             long lastRevivalTime = _playerList[playerId].LastRevivalTimesByPlayer;
             long currentTime = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
-            bool isOnCooldown = (currentTime - lastRevivalTime) < RevivalModSettings.REVIVAL_COOLDOWN.Value;
+            bool isOnCooldown = (currentTime - lastRevivalTime) < RevivalModSettings.REVIVAL_COOLDOWN;
             
             // Only show notification if not in test mode or not on cooldown
             if (!isOnCooldown) 
                 return false;
             
-            int remainingCooldown = (int)(RevivalModSettings.REVIVAL_COOLDOWN.Value - (currentTime - lastRevivalTime));
+            int remainingCooldown = (int)(RevivalModSettings.REVIVAL_COOLDOWN - (currentTime - lastRevivalTime));
                     
             NotificationManagerClass.DisplayMessageNotification(
                 $"Revival on cooldown! Available in {remainingCooldown} seconds",
@@ -652,11 +652,11 @@ namespace RevivalMod.Features
                     _playerList[playerId].OriginalMovementSpeed = player.Physical.WalkSpeedLimit;
 
                 // Apply visual and movement effects
-                if (RevivalModSettings.CONTUSION_EFFECT.Value)
-                    player.ActiveHealthController.DoContusion(RevivalModSettings.REVIVAL_DURATION.Value, 1f);
+                if (RevivalModSettings.CONTUSION_EFFECT)
+                    player.ActiveHealthController.DoContusion(RevivalModSettings.INVULNERABILITY_DURATION, 1f);
                 
-                if (RevivalModSettings.STUN_EFFECT.Value)
-                    player.ActiveHealthController.DoStun(RevivalModSettings.REVIVAL_DURATION.Value / 2, 1f);
+                if (RevivalModSettings.STUN_EFFECT)
+                    player.ActiveHealthController.DoStun(RevivalModSettings.INVULNERABILITY_DURATION / 2, 1f);
 
                 // Severely restrict movement
                 player.Physical.WalkSpeedLimit = MOVEMENT_SPEED_MULTIPLIER;
@@ -726,10 +726,10 @@ namespace RevivalMod.Features
                 player.ActiveHealthController.IsAlive = true;
 
                 // Enable God mode
-                if (RevivalModSettings.PLAYER_ALIVE.Value)
+                if (RevivalModSettings.GHOST_MODE)
                     player.ActiveHealthController.IsAlive = false;
                 
-                if (RevivalModSettings.GOD_MODE.Value)
+                if (RevivalModSettings.GOD_MODE)
                     player.ActiveHealthController.SetDamageCoeff(0);
 
                 GClass4062.ReleaseBeginSample("Player.OnDead.SoundWork", "OnDead");
@@ -817,11 +817,11 @@ namespace RevivalMod.Features
                 healthController.IsAlive = true;
                 
                 // Disable God mode
-                if (RevivalModSettings.GOD_MODE.Value)
+                if (RevivalModSettings.GOD_MODE)
                     healthController.SetDamageCoeff(1);
 
                 // Restore destroyed body parts if setting enabled
-                if (RevivalModSettings.RESTORE_DESTROYED_BODY_PARTS.Value)
+                if (RevivalModSettings.RESTORE_DESTROYED_BODY_PARTS)
                 {
                     Plugin.LogSource.LogInfo("Restoring body parts");
                     
@@ -843,7 +843,7 @@ namespace RevivalMod.Features
                         
                         bodyPartState.IsDestroyed = false;
 
-                        float restorePercent = RevivalModSettings.RESTORE_DESTROYED_BODY_PARTS_AMOUNT.Value/100f;
+                        float restorePercent = RevivalModSettings.RESTORE_DESTROYED_BODY_PARTS_AMOUNT/100f;
                         float newCurrentHealth = bodyPartState.Health.Maximum * restorePercent;
 
                         bodyPartState.Health = new HealthValue(newCurrentHealth, bodyPartState.Health.Maximum, 0f);
@@ -880,11 +880,11 @@ namespace RevivalMod.Features
                 }
 
                 // Apply disorientation effects
-                if (RevivalModSettings.CONTUSION_EFFECT.Value)
-                    healthController.DoContusion(RevivalModSettings.REVIVAL_DURATION.Value, 1f);
+                if (RevivalModSettings.CONTUSION_EFFECT)
+                    healthController.DoContusion(RevivalModSettings.INVULNERABILITY_DURATION, 1f);
                     
-                if (RevivalModSettings.STUN_EFFECT.Value) 
-                    healthController.DoStun(RevivalModSettings.REVIVAL_DURATION.Value / 2, 1f);
+                if (RevivalModSettings.STUN_EFFECT) 
+                    healthController.DoStun(RevivalModSettings.INVULNERABILITY_DURATION / 2, 1f);
 
                 Plugin.LogSource.LogInfo("Applied revival effects to player");
             }
@@ -910,7 +910,7 @@ namespace RevivalMod.Features
             // Start visual effect
             player.StartCoroutine(FlashInvulnerabilityEffect(player));
 
-            Plugin.LogSource.LogInfo($"Started invulnerability for player {playerId} for {RevivalModSettings.REVIVAL_DURATION.Value} seconds");
+            Plugin.LogSource.LogInfo($"Started invulnerability for player {playerId} for {RevivalModSettings.INVULNERABILITY_DURATION} seconds");
         }
 
         /// <summary>

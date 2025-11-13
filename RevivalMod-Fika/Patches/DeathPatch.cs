@@ -50,14 +50,14 @@ namespace RevivalMod.Patches
                 Plugin.LogSource.LogInfo($"DEATH PREVENTION: Player {player.ProfileId} about to die from {damageType}");
 
                 // Check for headshot instant death
-                if (RevivalModSettings.HARDCORE_HEADSHOT_DEFAULT_DEAD.Value &&
+                if (RevivalModSettings.HARDCORE_HEADSHOT_DEFAULT_DEAD &&
                     __instance.GetBodyPartHealth(EBodyPart.Head, true).Current < 1 &&
                     damageType == EDamageType.Bullet)
                 {
                     // Handle random chance of critical state.
                     float randomNumber = UnityEngine.Random.Range(0f, 100f);
 
-                    if (randomNumber < RevivalModSettings.HARDCORE_CHANCE_OF_CRITICAL_STATE.Value)
+                    if (randomNumber < RevivalModSettings.HARDCORE_CHANCE_OF_CRITICAL_STATE)
                     {
                         Plugin.LogSource.LogInfo($"DEATH PREVENTED: Player was lucky. Random Number was: {randomNumber}");
 

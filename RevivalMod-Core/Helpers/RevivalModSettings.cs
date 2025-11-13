@@ -1,44 +1,52 @@
-﻿using BepInEx.Configuration;
+﻿using System;
+using System.Threading.Tasks;
+using BepInEx.Configuration;
+using Newtonsoft.Json;
 using UnityEngine;
+using RevivalMod.Models;
+using SPT.Common.Http;
 
 namespace RevivalMod.Helpers
 {
     internal class RevivalModSettings
     {
         #region Settings Properties
+        
+        public static ModConfig ModConfig;
 
         // Key Bindings
         public static ConfigEntry<KeyCode> SELF_REVIVAL_KEY;
         public static ConfigEntry<KeyCode> GIVE_UP_KEY;
 
         // Revival Mechanics
-        public static ConfigEntry<bool> SELF_REVIVAL_ENABLED;
-        public static ConfigEntry<float> REVIVAL_HOLD_DURATION;
-        public static ConfigEntry<float> TEAM_REVIVAL_HOLD_DURATION;
-        public static ConfigEntry<float> REVIVAL_DURATION;
-        public static ConfigEntry<float> REVIVAL_COOLDOWN;
-        public static ConfigEntry<float> CRITICAL_STATE_TIME;
-        public static ConfigEntry<bool> RESTORE_DESTROYED_BODY_PARTS;
-        public static ConfigEntry<float> RESTORE_DESTROYED_BODY_PARTS_AMOUNT;
-        public static ConfigEntry<bool> CONTUSION_EFFECT;
-        public static ConfigEntry<bool> STUN_EFFECT;
-        public static ConfigEntry<float> REVIVAL_RANGE_X;
-        public static ConfigEntry<float> REVIVAL_RANGE_Y; 
-        public static ConfigEntry<float> REVIVAL_RANGE_Z;
+        public static bool SELF_REVIVAL_ENABLED;
+        public static float REVIVAL_HOLD_DURATION;
+        public static float TEAM_REVIVAL_HOLD_DURATION;
+        public static float INVULNERABILITY_DURATION;
+        public static float REVIVAL_COOLDOWN;
+        public static float CRITICAL_STATE_TIME;
+        public static bool RESTORE_DESTROYED_BODY_PARTS;
+        public static float RESTORE_DESTROYED_BODY_PARTS_AMOUNT;
+        public static bool CONTUSION_EFFECT;
+        public static bool STUN_EFFECT;
+        public static float REVIVAL_RANGE_X;
+        public static float REVIVAL_RANGE_Y; 
+        public static float REVIVAL_RANGE_Z;
 
         // Hardcore Mode
-        public static ConfigEntry<bool> PLAYER_ALIVE;
-        public static ConfigEntry<bool> GOD_MODE;
-        public static ConfigEntry<bool> HARDCORE_HEADSHOT_DEFAULT_DEAD;
-        public static ConfigEntry<float> HARDCORE_CHANCE_OF_CRITICAL_STATE;
+        public static bool GHOST_MODE;
+        public static bool GOD_MODE;
+        public static bool HARDCORE_HEADSHOT_DEFAULT_DEAD;
+        public static float HARDCORE_CHANCE_OF_CRITICAL_STATE;
 
         // Development
         public static ConfigEntry<bool> TESTING;
 
         #endregion
 
-        public static void Init(ConfigFile config)
+        public async static void Init(ConfigFile config)
         {
+            ModConfig = await LoadFromServer();
             #region Key Bindings Settings
 
             SELF_REVIVAL_KEY = config.Bind(
@@ -59,128 +67,43 @@ namespace RevivalMod.Helpers
 
             #region Revival Mechanics Settings
 
-            SELF_REVIVAL_ENABLED = config.Bind(
-                "2. Revival Mechanics",
-                "Enable Self Revival",
-                true,
-                "When enabled, you can revive yourself with a defibrillator"
-            );
+            SELF_REVIVAL_ENABLED = ModConfig.EnabledSelfRevival;
 
-            REVIVAL_HOLD_DURATION = config.Bind(
-                "2. Revival Mechanics",
-                "Self Revival Hold Duration",
-                3f,
-                "How many seconds you need to hold the Self Revival Key to revive yourself"
-            );
+            REVIVAL_HOLD_DURATION = ModConfig.SelfRevivalHoldDuration;
 
-            TEAM_REVIVAL_HOLD_DURATION = config.Bind(
-                "2. Revival Mechanics",
-                "Team Revival Hold Duration",
-                5f,
-                "How many seconds you need to hold the Team Revival Key to revive a teammate"
-            );
+            TEAM_REVIVAL_HOLD_DURATION = ModConfig.TeamRevivalHoldDuration;
 
-            CRITICAL_STATE_TIME = config.Bind(
-                "2. Revival Mechanics",
-                "Critical State Duration",
-                180f,
-                "How long you remain in critical state before dying (in seconds)"
-            );
+            CRITICAL_STATE_TIME = ModConfig.CriticalStateDuration;
 
-            REVIVAL_DURATION = config.Bind(
-                "2. Revival Mechanics",
-                "Invulnerability Duration",
-                4f,
-                "How long you remain invulnerable after being revived (in seconds)"
-            );
+            INVULNERABILITY_DURATION = ModConfig.InvulnerabilityDuration;
 
-            REVIVAL_COOLDOWN = config.Bind(
-                "2. Revival Mechanics",
-                "Revival Cooldown",
-                180f,
-                "How long you must wait between revivals (in seconds)"
-            );
+            REVIVAL_COOLDOWN = ModConfig.RevivalCooldown;
 
-            RESTORE_DESTROYED_BODY_PARTS = config.Bind(
-                "2. Revival Mechanics",
-                "Restore Destroyed Body Parts",
-                false,
-                "When enabled, destroyed body parts will be restored after revival"
-            );
+            RESTORE_DESTROYED_BODY_PARTS = ModConfig.RestoreDestroyedBodyParts;
 
-            RESTORE_DESTROYED_BODY_PARTS_AMOUNT = config.Bind(
-                "2. Revival Mechanics",
-                "Restore Destroyed Body Parts percentage",
-                0f,
-                "The percentage of Body Part's health to be restored (i.e 50%)"
-            );
+            RESTORE_DESTROYED_BODY_PARTS_AMOUNT = ModConfig.RestoreDestroyedBodyPartsPercentage;
 
-            CONTUSION_EFFECT = config.Bind(
-                "2. Revival Mechanics",
-                "Contusion effect",
-                true,
-                ""
-            );
+            CONTUSION_EFFECT = ModConfig.ContusionEffect;
 
-            STUN_EFFECT = config.Bind(
-                "2. Revival Mechanics",
-                "Stun effect",
-                true,
-                ""
-            );
+            STUN_EFFECT = ModConfig.StunEffect;
 
-            REVIVAL_RANGE_X = config.Bind(
-                "2. Revival Mechanics",
-                "Hitbox X dimension (requires restart raid)",
-                0.3f,
-                ""
-            );
+            REVIVAL_RANGE_X = ModConfig.HitboxXDimension;
 
-            REVIVAL_RANGE_Y = config.Bind(
-                "2. Revival Mechanics",
-                "Hitbox Y dimension (requires restart raid)",
-                0.3f,
-                ""
-            );
+            REVIVAL_RANGE_Y = ModConfig.HitboxYDimension;
 
-            REVIVAL_RANGE_Z = config.Bind(
-                "2. Revival Mechanics",
-                "Hitbox Z dimension (requires restart raid)",
-                0.3f,
-                ""
-            );
+            REVIVAL_RANGE_Z = ModConfig.HitboxZDimension;
 
             #endregion
 
             #region Hardcore Mode Settings
 
-            PLAYER_ALIVE = config.Bind(
-                "3. Ghost/God Mode",
-                "Enable Ghost Mode",
-                false,
-                "Makes players not targetable by AI BUT will not be able to move or look around"
-            );
+            GHOST_MODE = ModConfig.GhostMode;
 
-            GOD_MODE = config.Bind(
-                "3. Ghost/God Mode",
-                "Enable God Mode",
-                false,
-                "Makes players invulnerable while in Critical State"
-            );
+            GOD_MODE = ModConfig.GodMode;
 
-            HARDCORE_HEADSHOT_DEFAULT_DEAD = config.Bind(
-                "3. Hardcore Mode",
-                "Headshots Are Fatal",
-                false,
-                "When enabled, headshots will kill you instantly without entering critical state"
-            );
+            HARDCORE_HEADSHOT_DEFAULT_DEAD = ModConfig.HeadshotsAreFatal;
 
-            HARDCORE_CHANCE_OF_CRITICAL_STATE = config.Bind(
-                "3. Hardcore Mode",
-                "Critical State Chance",
-                0.75f,
-                "Probability of entering critical state instead of dying instantly in Hardcore Mode (0.75 = 75%)"
-            );
+            HARDCORE_CHANCE_OF_CRITICAL_STATE = ModConfig.CriticalStateChance;
 
             #endregion
 
@@ -194,6 +117,22 @@ namespace RevivalMod.Helpers
             );
 
             #endregion
+        }
+        
+        private static async Task<ModConfig> LoadFromServer()
+        {
+            try
+            {
+                string payload = await RequestHandler.GetJsonAsync("/bringmetolife/load");
+                
+                return JsonConvert.DeserializeObject<ModConfig>(payload);
+            }
+            catch (Exception ex)
+            {
+                NotificationManagerClass.DisplayWarningNotification("Failed to load Bring Me To Life server config - check the server");
+                
+                return null;
+            }
         }
     }
 }

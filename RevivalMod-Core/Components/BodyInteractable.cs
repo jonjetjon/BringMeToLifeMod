@@ -16,7 +16,7 @@ namespace RevivalMod.Components
         public void OnRevive(GamePlayerOwner owner)
         {
 
-            float reviveTime = RevivalModSettings.TEAM_REVIVAL_HOLD_DURATION.Value;
+            float reviveTime = RevivalModSettings.TEAM_REVIVAL_HOLD_DURATION;
 
             if (Revivee is null)
             {
@@ -88,6 +88,8 @@ namespace RevivalMod.Components
                 if (result)
                 {
                     RevivalFeatures.PerformTeammateRevival(targetId, owner.Player);
+
+                    owner.DisplayPreloaderUiNotification("Successfully revived teammate!");
 
                     Plugin.LogSource.LogInfo($"Revive completed !");
                 }

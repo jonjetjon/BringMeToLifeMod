@@ -1,0 +1,20 @@
+{
+  "enabled": true,
+  "enabledSelfRevival": true,
+  "selfRevivalHoldDuration": 5,
+  "teamRevivalHoldDuration": 5,
+  "criticalStateDuration": 180,
+  "invulnerabilityDuration": 4,
+  "revivalCooldown": 180,
+  "restoreDestroyedBodyParts": true,
+  "restoreDestroyedBodyPartsPercentage": 33,
+  "contusionEffect": true,
+  "stunEffect": true,
+  "hitboxXDimension": 0.3,
+  "hitboxYDimension": 0.3,
+  "hitboxZDimension": 0.3,
+  "ghostMode": false,
+  "godMode": true,
+  "headshotsAreFatal": false,
+  "criticalStateChange": 0.75
+}

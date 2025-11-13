@@ -39,7 +39,10 @@
       <HintPath>D:\ref4\DissonanceVoip.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="ItemComponent.Types" />
+    <Reference Include="ItemComponent.Types">
+      <HintPath>D:\ref4\ItemComponent.Types.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="PhysicsModule">
       <HintPath>D:\ref4\UnityEngine.PhysicsModule.dll</HintPath>
       <Private>false</Private>
@@ -130,15 +133,4 @@
       <Private>false</Private>
     </Reference>
   </ItemGroup>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Copy 
-      SourceFiles="$(TargetDir)$(TargetName).dll" 
-      DestinationFolder="C:\Users\kobethuy\Documents\EFT\BepInEx\plugins" 
-      SkipUnchangedFiles="true" />
-      
-    <Copy 
-      SourceFiles="$(TargetDir)$(TargetName).dll" 
-      DestinationFolder="C:\Users\kobethuy\Documents\MO2\SPT-Live\mods\RevivalMod - Test\BepInEx\plugins" 
-      SkipUnchangedFiles="true" />
-  </Target>
 </Project>
