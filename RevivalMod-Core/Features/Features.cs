@@ -13,7 +13,6 @@ using Comfort.Common;
 using RevivalMod.Helpers;
 using RevivalMod.Fika;
 using RevivalMod.Components;
-using Fika.Core.Main.Players;
 
 namespace RevivalMod.Features
 {
@@ -606,14 +605,14 @@ namespace RevivalMod.Features
         /// <summary>
         /// Consumes a defibrillator item from the player's inventory
         /// </summary>
-        private static void ConsumeDefibItem(Player player, Item defibItem)
+        public static void ConsumeDefibItem(Player player, Item defibItem)
         {
             try
             {
-                if (player is not FikaPlayer FikaPlayer)
+                if (player == null)
                     return;
                 
-                InventoryController inventoryController = FikaPlayer.InventoryController;
+                InventoryController inventoryController = player.InventoryController;
                 GStruct153 discardResult = InteractionsHandlerClass.Discard(defibItem, inventoryController, true);
 
                 if (discardResult.Failed)

@@ -1,6 +1,7 @@
 ﻿using Comfort.Common;
 using Fika.Core.Main.Utils;
 using Fika.Core.Networking;
+using HarmonyLib;
 using RevivalMod.FikaModule.Common;
 using RevivalMod.Fika;
 
@@ -26,6 +27,8 @@ namespace RevivalMod.FikaModule
 
         public static void PluginAwake()
         {
+            Harmony harmony = new Harmony("RevivalMod");
+            harmony.PatchAll();
         }
 
         public static void PluginEnable()
