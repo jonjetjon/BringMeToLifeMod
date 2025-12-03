@@ -600,7 +600,7 @@ namespace RevivalMod.Features
         }
 
         /// <summary>
-        /// Consumes a defibrillator item from the player's inventory.
+        /// Consumes a defibrillator item from the player's inventory
         /// </summary>
         public static void ConsumeDefibItem(Player player, Item defibItem)
         {
