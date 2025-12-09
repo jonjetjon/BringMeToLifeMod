@@ -293,19 +293,15 @@ namespace RevivalMod.FikaModule.Common
             if (!isAlive)
             {
                 // Player entering ghost mode
-                AddPlayerToGhostMode(playerId);
-                Plugin.LogSource.LogInfo($"[GhostMode] Local: Player {playerId} added to ghost mode ({GhostModePlayerCount} total)");
-                
-                if (targetPlayer != null)
-                {
-                    ClearVanillaAITargeting(targetPlayer, gameWorld);
-                }
+                PlayersInGhostMode.Add(playerId);
+                Plugin.LogSource.LogInfo($"[GhostMode] Local: Player {playerId} added to ghost mode ({PlayersInGhostMode.Count} total)");
+                // Note: SAIN patch handles AI targeting via IsEnemyValidPostfix
             }
             else
             {
                 // Player exiting ghost mode
-                RemovePlayerFromGhostMode(playerId);
-                Plugin.LogSource.LogInfo($"[GhostMode] Local: Player {playerId} removed from ghost mode ({GhostModePlayerCount} remaining)");
+                PlayersInGhostMode.Remove(playerId);
+                Plugin.LogSource.LogInfo($"[GhostMode] Local: Player {playerId} removed from ghost mode ({PlayersInGhostMode.Count} remaining)");
             }
         }
 
