@@ -1,18 +1,45 @@
+using RevivalModServer.Models;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.DI;
 using SPTarkov.Server.Core.Extensions;
+using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Mod;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Services;
+using System.Reflection;
 
 namespace RevivalModServer.Services;
 
-[Injectable]
-public class RevivalModTraderService(ISptLogger<RevivalModTraderService> logger, DatabaseService databaseService)
+[Injectable(TypePriority = OnLoadOrder.PostDBModLoader + 5)]
+public class RevivalModTraderService(ISptLogger<RevivalModTraderService> logger, DatabaseService databaseService, ModHelper modHelper) :IOnLoad
 {
+    
+    public Task OnLoad()
+    {
+        // Get your current assembly
+        var assembly = Assembly.GetExecutingAssembly();
+        var pathToMod = modHelper.GetAbsolutePathToModFolder(assembly);
+        var config = modHelper.GetJsonDataFromFile<ModConfig>(pathToMod, "config/config.json");
+        if(config.addTradeOffer)
+        {
+            logger.Info("[Revival Mod] Add trader offer set to true in config, adding offer to assort");
+            AddNewTradeOffer(config.traderName, config.offerCurrencyType, config.itemId, config.offerCurrencyAmount, config.offerLoyaltyLevel);
+        }
+        return Task.CompletedTask;
+
+    }
+    public record ModConfig
+    {
+        public required string itemId { get; init; }
+        public required bool addTradeOffer { get; init; }
+        public required string traderName { get; init; }
+        public required string offerCurrencyType { get; init; }
+        public required int offerCurrencyAmount { get; init; }
+        public required int offerLoyaltyLevel { get; init; }
+    }
     public void AddNewTradeOffer(string traderName, string currencyType, string itemId, int price, int loyaltyLevel)
     {
         try
